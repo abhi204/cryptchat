@@ -1,12 +1,39 @@
 import urwid as uw
+from dummy import get_msgs
+
+class msg_pop(uw.WidgetWrap):
+    def __init__(self, user, msg,):
+        super().__init__(self.create_pop(user, msg))
+
+    def create_pop(self, user, msg):
+        user_label = uw.Text(user)
+        text = uw.Text(msg)
+        text = uw.LineBox(
+            text,
+            tlcorner=u'\u2502',
+            blcorner=u'\u2502',
+            tline='',
+            bline='',
+            rline='',
+            trcorner='',
+            brcorner=''
+            )
+        div = uw.Divider()
+        w_cols = [
+            (len(user),user_label),
+            text
+        ]
+        w = uw.Columns(w_cols,dividechars=1)
+        w = uw.Pile([div, w])
+        return w
+
 
 class interface(uw.WidgetWrap):
     def __init__(self):
         super().__init__(self.main_window())
 
     def msg_widget(self):
-        msg_w = uw.Edit(multiline=True)
-        msg_w = uw.Filler(msg_w)
+        msg_w = uw.ListBox(get_msgs(50))
         frame = uw.Frame(body=msg_w)
         msg_wrap = uw.LineBox(frame, title='Messages', title_align='left')
         return msg_wrap
@@ -45,5 +72,6 @@ class interface(uw.WidgetWrap):
 if __name__ == '__main__':
     app = interface()
     loop = uw.MainLoop(app)
+    loop.screen.set_terminal_properties(colors=256)
     loop.run()
 
