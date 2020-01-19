@@ -1,5 +1,5 @@
 import urwid as uw
-from dummy import get_msgs
+from dummy import get_msgs, get_userlist
 
 class msg_pop(uw.WidgetWrap):
     def __init__(self, user, msg,):
@@ -39,12 +39,7 @@ class interface(uw.WidgetWrap):
         return msg_wrap
 
     def user_list_widget(self): # dummy users
-        group=[]
-        user_rb = []
-        for i in range(100):
-            rb = uw.RadioButton(group,label=f'User {i}')
-            user_rb.append(rb)
-        ulist = uw.ListBox(user_rb)
+        ulist = uw.ListBox(get_userlist(50))
         ulist = uw.LineBox(ulist, title='Users', title_align='left')
         return ulist
 

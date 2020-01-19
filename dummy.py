@@ -1,4 +1,5 @@
 import this
+import urwid as uw
 import random
 
 def get_msgs(n):
@@ -13,6 +14,15 @@ def get_msgs(n):
         msg_pops.append(pop)
 
     return msg_pops
+
+def get_userlist(n):
+    group = []
+    user_rbs = []
+    for i in range(n):
+        rb = uw.RadioButton(group,label=f'User {i}')
+        user_rbs.append(rb)
+
+    return user_rbs
 
 
     
