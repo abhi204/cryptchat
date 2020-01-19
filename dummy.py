@@ -9,14 +9,14 @@ Nam semper, magna ac commodo dictum, turpis mauris cursus libero, a bibendum mau
 '''
 
 def get_msgs(n):
-    from interface import msg_pop
+    from interface import MsgPop
     users = ['you', 'user_x']
     texts = lorem_ipsum.split('\n')
     msg_pops = []
     for i in range(n):
         user = users[random.randint(0,1)]
         text = texts[random.randint(0, len(texts)-2)]
-        pop = msg_pop(user, text)
+        pop = MsgPop(user, text)
         msg_pops.append(pop)
 
     return msg_pops

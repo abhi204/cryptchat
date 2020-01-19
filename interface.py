@@ -8,7 +8,7 @@ palette = [
         ('legend', 'black', 'white'),
 ]
 
-class msg_pop(uw.WidgetWrap):
+class MsgPop(uw.WidgetWrap):
     def __init__(self, user, msg,):
         super().__init__(self.create_pop(user, msg))
 
@@ -40,7 +40,8 @@ class msg_pop(uw.WidgetWrap):
         w = uw.Pile([div, w])
         return w
 
-class interface(uw.WidgetWrap):
+
+class Interface(uw.WidgetWrap):
     def __init__(self):
         super().__init__(self.main_window())
 
@@ -84,7 +85,7 @@ class interface(uw.WidgetWrap):
         return main_w
 
 if __name__ == '__main__':
-    app = interface()
+    app = Interface()
     loop = uw.MainLoop(app,palette=palette)
     loop.screen.set_terminal_properties(colors=256)
     loop.run()
