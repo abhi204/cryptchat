@@ -78,18 +78,26 @@ class Dialog(uw.WidgetWrap):
         return dialog
 
 
-class Interface(uw.WidgetWrap):
+class Interface(object):
+    _top_window = uw.WidgetPlaceholder(uw.SolidFill(u'.'))
+
     def __init__(self):
-        super().__init__(self.main_window())
+        self._main_window = self.main_window()
+        self._loop = uw.MainLoop(
+            self._main_window,
+            palette,
+            unhandled_input=self._unhandled_input
+        )
+        self._loop.screen.set_terminal_properties(colors=256)
 
     def msg_widget(self):
-        msg_w = uw.ListBox(get_msgs(50))
+        msg_w = uw.ListBox(get_msgs(50)) # 50 dummy messages
         frame = uw.Frame(body=msg_w)
         msg_wrap = uw.LineBox(frame, title='Messages', title_align='left')
         return msg_wrap
 
-    def user_list_widget(self): # dummy users
-        ulist = uw.ListBox(get_userlist(50))
+    def user_list_widget(self):
+        ulist = uw.ListBox(get_userlist(50)) # 50 dummy users
         ulist = uw.LineBox(ulist, title='Users', title_align='left')
         return ulist
 
@@ -121,9 +129,9 @@ class Interface(uw.WidgetWrap):
         main_w = uw.Padding(main_w, align='center',left=1, right=0)
         return main_w
 
+    def run(self):
+        self._loop.run()
+
 if __name__ == '__main__':
-    app = Interface()
-    loop = uw.MainLoop(app,palette=palette)
-    loop.screen.set_terminal_properties(colors=256)
-    loop.run()
+    Interface().run()
 
