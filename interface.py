@@ -6,6 +6,7 @@ palette = [
         ('sender_user', 'white', 'dark blue'),
         ('send_btn', 'black', 'dark green'),
         ('legend', 'black', 'white'),
+        ('dialog', 'black', 'light gray'),
 ]
 
 class MsgPop(uw.WidgetWrap):
@@ -39,6 +40,42 @@ class MsgPop(uw.WidgetWrap):
         w = uw.Padding(w, left=1)
         w = uw.Pile([div, w])
         return w
+
+class Dialog(uw.WidgetWrap):
+    '''
+    TODO : Add functionality for handler_pairs
+    '''
+    def __init__(self, main_w, height, legend=None, handler_pairs=None):
+        '''
+         main_w => Flow widget
+         height => height of main_w
+        '''
+        super().__init__(self._create_dialog(main_w, height, legend, handler_pairs))
+    
+    def _create_dialog(self, main_w, height, legend=None, handler_pairs=None):
+        div = uw.Divider()
+        if legend:
+            body = uw.Pile([div, main_w, div], focus_item=1)
+            body = uw.BoxAdapter(uw.Filler(body), height+2)
+            footer = uw.LineBox(
+                legend,
+                blcorner='',bline='',brcorner='',
+                tlcorner='\u2500', trcorner='\u2500',
+                lline='', rline=''
+                )
+            dialog = uw.Pile([body, footer], focus_item=0)
+        else:
+            dialog = body
+        
+        dialog = uw.LineBox(uw.Padding(dialog,left=1, right=1))
+
+        dialog = uw.Filler(
+            uw.Padding(dialog,'center', left=1, right=1),
+            top=1,
+            bottom=1
+        )
+        dialog = uw.AttrMap(dialog, 'dialog')
+        return dialog
 
 
 class Interface(uw.WidgetWrap):
