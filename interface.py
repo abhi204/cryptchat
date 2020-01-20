@@ -79,7 +79,6 @@ class Dialog(uw.WidgetWrap):
 
 
 class Interface(object):
-    _top_window = uw.WidgetPlaceholder(uw.SolidFill(u'.'))
 
     def __init__(self):
         self._main_window = self.main_window()
@@ -117,6 +116,31 @@ class Interface(object):
         w_wrap = uw.Columns([txtbox_wrap,(14,send_wrap)],focus_column=0)
         return w_wrap 
 
+    def user_add_window(self):
+
+        # User Add dialog
+        txt_box = uw.Edit(caption='Add user: ', multiline=False)
+
+        legend = uw.Columns([
+                uw.Text('Continue: [Enter]'),
+                uw.Text('Cancel: [Esc]', align='right')
+            ])
+
+        dialog = Dialog(txt_box, 1, legend)
+
+        # Overlay for the new main_loop widget
+        w = uw.Overlay(
+            dialog,
+            self._main_window,
+            'center',
+            ('relative', 20),
+            'middle',
+            ('relative', 15),
+            min_height=7,
+            min_width=40
+        )
+        return w
+
     def main_window(self):
         msg_w = self.msg_widget()
         ulist_w = self.user_list_widget()
@@ -128,6 +152,17 @@ class Interface(object):
         main_w = uw.Frame(body=w_body, footer=w_footer, focus_part='footer')
         main_w = uw.Padding(main_w, align='center',left=1, right=0)
         return main_w
+
+    def _unhandled_input(self, key):
+        current_w = self._loop.widget
+        if key == 'ctrl x' and current_w == self._main_window :
+            self._loop.widget = self.user_add_window()
+            return
+        if key == 'esc' and current_w != self._main_window :
+            self._loop.widget = self._main_window
+            return
+        if key == 'ctrl q':
+            raise uw.ExitMainLoop()
 
     def run(self):
         self._loop.run()
