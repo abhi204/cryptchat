@@ -92,12 +92,12 @@ class Interface(object):
 
     def __init__(self):
         self._main_window = self.main_window()
-        self._loop = uw.MainLoop(
+        self.loop = uw.MainLoop(
             self._main_window,
             palette,
-            unhandled_input=self._unhandled_input
+            unhandled_input=self.unhandled_input
         )
-        self._loop.screen.set_terminal_properties(colors=256)
+        self.loop.screen.set_terminal_properties(colors=256)
 
     def msg_widget(self):
         msg_w = uw.ListBox(get_msgs(50)) # 50 dummy messages
@@ -132,12 +132,10 @@ class Interface(object):
 
         # User Add dialog
         txt_box = uw.Edit(caption='Add user: ', multiline=False)
-
         legend = uw.Columns([
                 uw.Text('Continue: [Enter]'),
                 uw.Text('Cancel: [Esc]', align='right')
             ])
-
         dialog = Dialog(
             txt_box,
             1,
@@ -175,7 +173,7 @@ class Interface(object):
             self.close_dialog()
 
     def close_dialog(self, *args, **kwargs):
-        self._loop.widget = self._main_window
+        self.loop.widget = self._main_window
 
     def main_window(self):
         self.msg_w = self.msg_widget()
@@ -189,19 +187,19 @@ class Interface(object):
         main_w = uw.Padding(main_w, align='center',left=1, right=0)
         return main_w
 
-    def _unhandled_input(self, key):
-        current_w = self._loop.widget
+    def unhandled_input(self, key):
+        current_w = self.loop.widget
         if key == 'ctrl x' and current_w == self._main_window :
-            self._loop.widget = self.user_add_window()
+            self.loop.widget = self.user_add_window()
             return
         if key == 'esc' and current_w != self._main_window :
-            self._loop.widget = self._main_window
+            self.loop.widget = self._main_window
             return
         if key == 'ctrl q':
             raise uw.ExitMainLoop()
 
     def run(self):
-        self._loop.run()
+        self.loop.run()
 
 
 if __name__ == '__main__':
