@@ -41,18 +41,20 @@ class MsgPop(uw.WidgetWrap):
         w = uw.Pile([div, w])
         return w
 
+
 class Dialog(uw.WidgetWrap):
-    '''
-    TODO : Add functionality for handler_pairs
-    '''
-    def __init__(self, main_w, height, legend=None, handler_pairs=None):
+
+    def __init__(self, main_w, height, legend=None, key_handlers=dict()):
         '''
-         main_w => Flow widget
+         main_w => Flow widget ( Passed as arg to functions of key_handlers)
          height => height of main_w
+         key_handler => dictionary with legend keys mapped to their handler function
         '''
-        super().__init__(self._create_dialog(main_w, height, legend, handler_pairs))
+        self.key_handlers = key_handlers
+        self.base_w = main_w
+        super().__init__(self._create_dialog(main_w, height, legend))
     
-    def _create_dialog(self, main_w, height, legend=None, handler_pairs=None):
+    def _create_dialog(self, main_w, height, legend=None):
         div = uw.Divider()
         if legend:
             body = uw.Pile([div, main_w, div], focus_item=1)
@@ -77,8 +79,16 @@ class Dialog(uw.WidgetWrap):
         dialog = uw.AttrMap(dialog, 'dialog')
         return dialog
 
+    def keypress(self, size, key):
+        if key in self.key_handlers:
+            handler = self.key_handlers[key]
+            handler(self.base_w)
+        else:
+            super().keypress(size, key)
+
 
 class Interface(object):
+    user_group = []
 
     def __init__(self):
         self._main_window = self.main_window()
@@ -93,10 +103,12 @@ class Interface(object):
         msg_w = uw.ListBox(get_msgs(50)) # 50 dummy messages
         frame = uw.Frame(body=msg_w)
         msg_wrap = uw.LineBox(frame, title='Messages', title_align='left')
+        msg_w.focus_position = len(msg_w.body) - 1 
         return msg_wrap
 
     def user_list_widget(self):
-        ulist = uw.ListBox(get_userlist(50)) # 50 dummy users
+        ulist_walker = uw.SimpleFocusListWalker(get_userlist(50, self.user_group))
+        ulist = uw.ListBox(ulist_walker) # 50 dummy users
         ulist = uw.LineBox(ulist, title='Users', title_align='left')
         return ulist
 
@@ -126,7 +138,15 @@ class Interface(object):
                 uw.Text('Cancel: [Esc]', align='right')
             ])
 
-        dialog = Dialog(txt_box, 1, legend)
+        dialog = Dialog(
+            txt_box,
+            1,
+            legend,
+            {
+                'enter': self.user_add,
+                'esc': self.close_dialog                
+            }
+        )
 
         # Overlay for the new main_loop widget
         w = uw.Overlay(
@@ -141,13 +161,29 @@ class Interface(object):
         )
         return w
 
+    def user_add(self, dialog_w):
+        ulist_w = self.ulist_w.base_widget
+        username = dialog_w.base_widget.edit_text
+        if username:
+            user_rb = uw.RadioButton(
+                self.user_group,
+                dialog_w.base_widget.edit_text
+            )
+            user_rb.set_state(True)
+            ulist_w.body.insert(0, user_rb)
+            ulist_w.focus_position = 0
+            self.close_dialog()
+
+    def close_dialog(self, *args, **kwargs):
+        self._loop.widget = self._main_window
+
     def main_window(self):
-        msg_w = self.msg_widget()
-        ulist_w = self.user_list_widget()
+        self.msg_w = self.msg_widget()
+        self.ulist_w = self.user_list_widget()
         input_and_send_w = self.chat_send_widget()
         legend = uw.Text(u' Add User:^X        Settings:^S        Quit:^Q')
         legend = uw.AttrMap(legend, 'legend')
-        w_body = uw.Columns([('weight',4,msg_w), ('weight',1,ulist_w)],focus_column=0,dividechars=1)
+        w_body = uw.Columns([('weight',4,self.msg_w), ('weight',1,self.ulist_w)],focus_column=0,dividechars=1)
         w_footer = uw.Pile([input_and_send_w, uw.Divider(), legend],focus_item=0)
         main_w = uw.Frame(body=w_body, footer=w_footer, focus_part='footer')
         main_w = uw.Padding(main_w, align='center',left=1, right=0)
@@ -166,6 +202,7 @@ class Interface(object):
 
     def run(self):
         self._loop.run()
+
 
 if __name__ == '__main__':
     Interface().run()

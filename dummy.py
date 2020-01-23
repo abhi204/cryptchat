@@ -21,8 +21,7 @@ def get_msgs(n):
 
     return msg_pops
 
-def get_userlist(n):
-    group = []
+def get_userlist(n, group=[]):
     user_rbs = []
     for i in range(n):
         rb = uw.RadioButton(group,label=f'User {i}')
