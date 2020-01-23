@@ -101,10 +101,15 @@ class Interface(object):
 
     def msg_widget(self):
         msg_w = uw.ListBox(get_msgs(50)) # 50 dummy messages
-        frame = uw.Frame(body=msg_w)
-        msg_wrap = uw.LineBox(frame, title='Messages', title_align='left')
+        msg_wrap = uw.LineBox(msg_w, title='Messages', title_align='left')
         msg_w.focus_position = len(msg_w.body) - 1 
         return msg_wrap
+
+    def msg_pop_append(self, sender, msg):
+        msg_pop = MsgPop(sender, msg)
+        msg_w = self.msg_w.base_widget
+        msg_w.body.append(msg_pop)
+        msg_w.focus_position = len(msg_w.body)-1
 
     def user_list_widget(self):
         ulist_walker = uw.SimpleFocusListWalker(get_userlist(50, self.user_group))
@@ -118,7 +123,7 @@ class Interface(object):
         txtbox_wrap = uw.BoxAdapter(txtbox_wrap, height=3)
         txtbox_wrap = uw.Padding(txtbox_wrap, align='center', left=1, right=1)
         txtbox_wrap = uw.LineBox(txtbox_wrap, title='Message', title_align='left')
-        send_btn = uw.Button('SEND')
+        send_btn = uw.Button('SEND', on_press=self.on_send)
         send_wrap = uw.Padding(send_btn, align='center', left=1, right=1)
         send_wrap = uw.Filler(send_wrap, top=1, bottom=1)
         send_wrap = uw.AttrMap(send_wrap, 'send_btn')
@@ -127,6 +132,14 @@ class Interface(object):
         send_wrap = uw.Pile([uw.Divider(), send_wrap])
         w_wrap = uw.Columns([txtbox_wrap,(14,send_wrap)],focus_column=0)
         return w_wrap 
+
+    def on_send(self, *args, **kwargs):
+        msg_textbox = self.msg_textbox.base_widget
+        msg = msg_textbox.edit_text.rstrip()
+        if len(msg):
+            # Code for sending message via socket
+            self.msg_pop_append('you', msg)
+            msg_textbox.set_edit_text('')
 
     def user_add_window(self):
 
@@ -179,6 +192,7 @@ class Interface(object):
         self.msg_w = self.msg_widget()
         self.ulist_w = self.user_list_widget()
         input_and_send_w = self.chat_send_widget()
+        self.msg_textbox, options = input_and_send_w.contents[0]
         legend = uw.Text(u' Add User:^X        Settings:^S        Quit:^Q')
         legend = uw.AttrMap(legend, 'legend')
         w_body = uw.Columns([('weight',4,self.msg_w), ('weight',1,self.ulist_w)],focus_column=0,dividechars=1)
