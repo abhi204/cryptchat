@@ -193,7 +193,7 @@ class Interface(object):
         self.ulist_w = self.user_list_widget()
         input_and_send_w = self.chat_send_widget()
         self.msg_textbox, options = input_and_send_w.contents[0]
-        legend = uw.Text(u' Add User:^X        Settings:^S        Quit:^Q')
+        legend = uw.Text(u' Add User:^X        Settings:^S        Exit:^E')
         legend = uw.AttrMap(legend, 'legend')
         w_body = uw.Columns([('weight',4,self.msg_w), ('weight',1,self.ulist_w)],focus_column=0,dividechars=1)
         w_footer = uw.Pile([input_and_send_w, uw.Divider(), legend],focus_item=0)
@@ -209,7 +209,7 @@ class Interface(object):
         if key == 'esc' and current_w != self._main_window :
             self.loop.widget = self._main_window
             return
-        if key == 'ctrl q':
+        if key == 'ctrl e':
             raise uw.ExitMainLoop()
 
     def run(self):
